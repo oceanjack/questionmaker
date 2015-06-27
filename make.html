@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" /> 
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="format-detection" content="telephone=no" />
-  <title>medicine</title>
+  <title>生成题目</title>
   <link type="text/css" href="http://cdn.amazeui.org/amazeui/2.4.0/css/amazeui.min.css" rel="stylesheet" />
   <link type="text/css" href="style.css" rel="stylesheet" />
   <script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
@@ -63,8 +63,15 @@
       problem.set("key", glbvar.key);
       problem.save(null, {
         success: function(problem) {
-          alert('保存成功');
-          window.location.reload();
+          var Key = AV.Object.extend("key");
+          var key = new Key();
+          key.set("key", glbvar.key);
+          key.save(null, {
+            success: function(key) {
+              alert('保存成功');
+              window.location.reload();
+            }
+          });
         },
         error: function(problem, error) {
           alert('error code: ' + error.message);

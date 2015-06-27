@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" /> 
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="format-detection" content="telephone=no" />
-  <title>medicine</title>
+  <title>做题</title>
   <link type="text/css" href="http://cdn.amazeui.org/amazeui/2.4.0/css/amazeui.min.css" rel="stylesheet" />
   <link type="text/css" href="style.css" rel="stylesheet" />
   <script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
@@ -16,61 +16,85 @@
 </head>
 <body>
   <div class="con">
-    <textarea rows="3" class="full"></textarea>
-    <button type="button" class="mksure am-btn am-btn-success full">确认题目</button>
-    <div class="tips"></div>
+    <button type="button" class="mkup am-btn am-btn-success full">换换题目</button>
     <div class="content"></div>
-    <button type="button" class="mkkey am-btn am-btn-success full hide">确认关键词</button>
-    <div class="tipsfinal"></div>
-    <div class="contentfinal"></div>
-    <button type="button" class="mkup am-btn am-btn-success full hide">提交至题库</button>
   </div>
   <script>
     var glbvar = {};
-    $('.mksure').click(function() {
-      $('.tips').text("请选择关键词:");
-      $('.content').text($('textarea').val());
-      $('.mkkey').removeClass('hide');
-    });
-    $('.mkkey').click(function() {
-      var selection = window.getSelection();
-      if(selection) {
-        var range = selection.getRangeAt();
-        var start = range.startOffset;
-        var end = range.endOffset;
-        $('.tipsfinal').text("最终题目:");
-        var content = $('.content').text();
-        glbvar.content = content;
-        glbvar.start = start;
-        glbvar.end = end;
-        glbvar.key = selection.toString();
-        $('.contentfinal').html('');
-        $('.contentfinal').append($(
-          '<span>' + content.substring(0, start)+'</span>' +
-          '<span class="red">' + content.substring(start, end)+'</span>' +
-          '<span>' + content.substring(end)+'</span>'
-        ));
-        $('.mkup').removeClass('hide');
-      }
-    });
-    $('.mkup').click(function() {
-      AV.initialize("912lk3bsurhhf9t02vkibipig2x829tye2kw18ealtamogj8", "ctzqkvrapcv85755j8qqinqzappdlxps9z66jha4p3svuhnw");
-      var Problem = AV.Object.extend("problem");
-      var problem = new Problem();
-      problem.set("content", glbvar.content);
-      problem.set("start", glbvar.start);
-      problem.set("end", glbvar.end);
-      problem.set("key", glbvar.key);
-      problem.save(null, {
-        success: function(problem) {
-          alert('保存成功');
-          window.location.reload();
-        },
-        error: function(problem, error) {
-          alert('error code: ' + error.message);
+    glbvar.index = 0;
+    var copt = function(k) {
+      var Key = AV.Object.extend("key");
+      var query = new AV.Query(Key);
+      query.limit(4);
+      query.find({
+        success: function(results) {
+          $('.am-radio').remove();
+          var id = Math.floor(Math.random()*4);
+          for (var i = 0; i < results.length; i++) {
+            var object = results[i];
+            var kk = object.get('key');
+            if(id == i) {
+              kk = k;
+              --i;
+              id = -1;
+            } else if(kk == k) {
+              continue;
+            }
+            $('.con').append($(
+              '<div class="am-radio">' +
+                '<label>' +
+                '<input type="radio" name="doc-radio-1" value="' + kk + '" checked>' +
+                kk +
+                '</label>' +
+              '</div>'
+            ));
+          }
+          $('input').click(function() {
+            if($(this).attr('value') == k) {
+              $('.red').text(k);
+            }
+          });
         }
       });
-    });
+    }
+    var change = function() {
+      $('.mkup').click(function() {  
+        newpro();
+      });
+    };
+    var init = function() {
+      AV.initialize("912lk3bsurhhf9t02vkibipig2x829tye2kw18ealtamogj8", "ctzqkvrapcv85755j8qqinqzappdlxps9z66jha4p3svuhnw");
+      newpro();
+      change();
+    };
+    var newpro = function() {
+      var Problem = AV.Object.extend("problem");
+      var query = new AV.Query(Problem);
+      query.limit(1);
+      query.skip(glbvar.index++);
+      query.find({
+        success: function(results) {
+          for (var i = 0; i < results.length; i++) {
+            var object = results[i];
+            var content = object.get('content');
+            var start = object.get('start');
+            var end = object.get('end');
+            $('.content').html('');
+            $('.content').append($(
+              '<span>' + content.substring(0, start)+'</span>' +
+              '<span class="red">___</span>' +
+              '<span>' + content.substring(end)+'</span>'
+            ));
+            copt(object.get('key'));
+          }
+        },
+        error: function(error) {
+          alert("Error: " + error.code + " " + error.message);
+        }
+      });
+
+    }
+    init();
   </script>
 </body>
 </html>
