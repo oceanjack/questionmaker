@@ -1,0 +1,16 @@
+body, html {
+  margin:0;
+  padding:0;
+}
+.con {
+  padding:2%;
+}
+.full {
+  width:100%;
+}
+.hide {
+  display:none;
+}
+.red {
+  color:#f00;
+}
